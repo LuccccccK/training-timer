@@ -1,53 +1,62 @@
 import { useTimer } from "react-timer-hook";
+import { Box, Button, Typography } from '@mui/material';
+import { useEffect, useState } from "react";
 
-function MyTimer({ expiryTimestamp }: { expiryTimestamp: Date }) {
+type mode = 'training' | 'interval';
+
+const trainingTimerSeconds = 5; // タイマー秒数
+const intervalTimerSeconds = 3; // インターバル用タイマー秒数
+const timerCounter = 2; // タイマー繰り返し回数
+
+const getDateForTimer = (seconds: number) => {
+  const timerDate = new Date();
+  timerDate.setSeconds(timerDate.getSeconds() + seconds);
+  return timerDate;
+}
+
+function MyTimer() {
+  const expiryTimestamp = getDateForTimer(intervalTimerSeconds);
+  const [counter, setCounter] = useState(1);
+  const [mode, setMode] = useState('interval' as mode);
+
   const {
-    seconds,
-    minutes,
-    hours,
-    days,
-    isRunning,
-    start,
-    pause,
-    resume,
-    restart,
+    seconds, minutes, isRunning,
+    start, pause, resume, restart
   } = useTimer({
+    autoStart: false,
     expiryTimestamp,
-    onExpire: () => console.warn("onExpire called"),
+    onExpire: () => { callback() },
   });
 
+  const callback = () => {
+    // NOTE: onExpire の Callback で restart を呼び出しても意図通りに動作しない
+    setMode((mode == 'interval') ? 'training' : 'interval');
+    setCounter(counter + 1);
+  }
+
+  useEffect(() => {
+    if (timerCounter < counter) {
+      return;
+    }
+    const timerSeconds = (mode == 'interval') ? intervalTimerSeconds : trainingTimerSeconds;
+    restart(getDateForTimer(timerSeconds))
+  }, [isRunning]) 
+
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>react-timer-hook </h1>
-      <p>Timer Demo</p>
-      <div style={{ fontSize: "100px" }}>
-        <span>{days}</span>:<span>{hours}</span>:<span>{minutes}</span>:
-        <span>{seconds}</span>
-      </div>
+    <Box style={{ textAlign: "center" }}>
+      <Typography variant="h1" component="h2">
+        {mode}
+      </Typography>
+      <Box style={{ fontSize: "100px", height: "100px" }}>
+        {minutes}:{seconds}
+      </Box>
       <p>{isRunning ? "Running" : "Not running"}</p>
-      <button onClick={start}>Start</button>
-      <button onClick={pause}>Pause</button>
-      <button onClick={resume}>Resume</button>
-      <button
-        onClick={() => {
-          // Restarts to 5 minutes timer
-          const time = new Date();
-          time.setSeconds(time.getSeconds() + 300);
-          restart(time as Date);
-        }}
-      >
-        Restart
-      </button>
-    </div>
+      <Button onClick={start}>Start</Button>
+      <Button onClick={pause}>Pause</Button>
+      <Button onClick={resume}>Resume</Button>
+      <Button onClick={() => { restart(getDateForTimer(trainingTimerSeconds)) }} >Restart</Button>
+    </Box>
   );
 }
 
-export default function Timer() {
-  const time = new Date();
-  time.setSeconds(time.getSeconds() + 600); // 10 minutes timer
-  return (
-    <div>
-      <MyTimer expiryTimestamp={time as Date} />
-    </div>
-  );
-}
+export default MyTimer;
