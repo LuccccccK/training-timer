@@ -53,12 +53,14 @@ function MyTimer() {
   return (
     <Box style={{ textAlign: "center" }}>
       <Typography variant="h1" component="h2">
+        {minutes}:{seconds}
+      </Typography>
+      <Typography variant="h2" component="h3">
         {mode}
       </Typography>
-      <Box style={{ fontSize: "100px", height: "100px" }}>
-        {minutes}:{seconds}
-      </Box>
-      <p>{isRunning ? "Running" : "Not running"}</p>
+      <Typography variant="body1">
+        {isRunning ? "Running" : "Not running"}
+      </Typography>
       <Button onClick={start}>Start</Button>
       <Button onClick={pause}>Pause</Button>
       <Button onClick={resume}>Resume</Button>
