@@ -16,6 +16,7 @@ const getDateForTimer = (seconds: number) => {
 
 function MyTimer() {
   const expiryTimestamp = getDateForTimer(intervalTimerSeconds);
+  const [isActivate, setIsActivate] = useState(false);
   const [counter, setCounter] = useState(1);
   const [mode, setMode] = useState('interval' as mode);
 
@@ -46,8 +47,10 @@ function MyTimer() {
     if (timerCounter < counter) {
       return;
     }
-    const timerSeconds = (mode == 'interval') ? intervalTimerSeconds : trainingTimerSeconds;
-    restart(getDateForTimer(timerSeconds))
+    if (isActivate) {
+      const timerSeconds = (mode == 'interval') ? intervalTimerSeconds : trainingTimerSeconds;
+      restart(getDateForTimer(timerSeconds))
+    }
   }, [mode]) 
 
   return (
@@ -59,12 +62,22 @@ function MyTimer() {
         {mode}
       </Typography>
       <Typography variant="body1">
-        {isRunning ? "Running" : "Not running"}
+        {isRunning ? "Running: " + counter + " set" : "Not running"}
       </Typography>
-      <Button onClick={start}>Start</Button>
+      <Button onClick={() => {
+        setIsActivate(true)
+        start();
+      }}>
+        Start
+      </Button>
       <Button onClick={pause}>Pause</Button>
       <Button onClick={resume}>Resume</Button>
-      <Button onClick={() => { restart(getDateForTimer(intervalTimerSeconds)) }} >Restart</Button>
+      <Button onClick={() => {
+        setCounter(1);
+        restart(getDateForTimer(intervalTimerSeconds)) 
+      }} >
+        Restart
+      </Button>
     </Box>
   );
 }
