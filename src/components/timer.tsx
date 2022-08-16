@@ -28,10 +28,18 @@ function MyTimer() {
     onExpire: () => { callback() },
   });
 
+  // NOTE: onExpire の Callback で restart を呼び出しても意図通りに動作しない
   const callback = () => {
-    // NOTE: onExpire の Callback で restart を呼び出しても意図通りに動作しない
-    setMode((mode == 'interval') ? 'training' : 'interval');
-    setCounter(counter + 1);
+    switch(mode) {
+      case 'training':
+        // training した場合にのみカウンターをインクリメント
+        setCounter(counter + 1);
+        setMode('interval')
+        break;
+      case 'interval':
+        setMode('training')
+        break;
+    }
   }
 
   useEffect(() => {
@@ -40,7 +48,7 @@ function MyTimer() {
     }
     const timerSeconds = (mode == 'interval') ? intervalTimerSeconds : trainingTimerSeconds;
     restart(getDateForTimer(timerSeconds))
-  }, [isRunning]) 
+  }, [mode]) 
 
   return (
     <Box style={{ textAlign: "center" }}>
@@ -54,7 +62,7 @@ function MyTimer() {
       <Button onClick={start}>Start</Button>
       <Button onClick={pause}>Pause</Button>
       <Button onClick={resume}>Resume</Button>
-      <Button onClick={() => { restart(getDateForTimer(trainingTimerSeconds)) }} >Restart</Button>
+      <Button onClick={() => { restart(getDateForTimer(intervalTimerSeconds)) }} >Restart</Button>
     </Box>
   );
 }
