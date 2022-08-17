@@ -1,6 +1,8 @@
 import { useTimer } from "react-timer-hook";
 import { Box, Button, Typography } from '@mui/material';
 import { useEffect, useState } from "react";
+import useSound from 'use-sound';
+import Sound from '../assets/Countdown02-1.mp3';
 
 type mode = 'before' | 'training' | 'interval' | 'end';
 
@@ -64,6 +66,14 @@ function MyTimer() {
       }
     }
   }, [mode]) 
+
+  const [play] = useSound(Sound);
+  useEffect(() => {
+    if (seconds !== 3) {
+      return;
+    }
+    play();
+  }, [seconds]);
 
   return (
     <Box style={{ textAlign: "center" }}>
